@@ -3,23 +3,30 @@ from Utils import *
 
 class Animation:
     Frames = 1_000_000
-    Image = pygame.image.load("sprite.png")
+    Images = [pygame.image.load("sprite.png")]
 
-    def __init__(self, direction):
+    def __init__(self, state):
         self.frame = 0
-        self.direction = direction
-        self.image = self.Image
-        self.rect = self.image.get_rect()
+        self.state = state
+        self.direction = state.player.direction
+
+        self.Image = self.Images[0]
+
+        if self.direction == -1:
+            self.Image = pygame.transform.flip(self.Image, flip_x=True, flip_y=False)
+
+        self.image, self.rect = self.get_frame()
 
     def tick(self):
         self.frame += 1
-        if self.frame <= self.Frames:
-            self.image = self.next_frame()
-            self.rect = self.image.get_rect()
-            return True
+        self.image, self.rect = self.get_frame()
 
-    def next_frame(self):
-        return self.Image
+    def get_frame(self):
+        if self.frame <= self.Frames:
+            return self.Image, self.Image.get_rect()
+        else:
+            self.state.end()
+            return None, None
 
 
 class IdleAnimation(Animation):
@@ -31,15 +38,17 @@ class JumpingAnimation(Animation):
 
 
 class DuckingAnimation(Animation):
-    Frames = 10
+    Frames = 30
+    Images = [pygame.image.load("ducking.png")]
 
 
-class RollingAnimation(Animation):
+class RollingAnimation(DuckingAnimation):
     Frames = 20
 
 
 class ReboundAnimation(Animation):
     Frames = 20
+    Images = [pygame.transform.rotate(Animation.Images[0], 30)]
 
 
 class WalkingAnimation(Animation):

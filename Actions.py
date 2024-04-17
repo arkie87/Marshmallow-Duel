@@ -2,14 +2,23 @@ from Animations import *
 
 
 class State:
-    def __init__(self, player):
+    def __init__(self, player, direction=0, vx=0, vy=0):
         self.player = player
-        self.animation = self.Animation(self.player.direction)
+        self.player.direction = direction
+        self.player.vx, self.player.vy = vx, vy
+        self.animation = self.Animation(self)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}, {self.player.vx}, {self.player.vy}"
 
     def tick(self):
-        if not self.animation.tick():
-            self.player.state = Idle(self.player)
+        self.animation.tick()
+        if not self.animation.image:
+            self.end()
         print(self)
+
+    def end(self):
+        self.player.state = Idle(self.player, self.player.direction)
 
     def use(self):
         pass
@@ -30,35 +39,26 @@ class State:
 class Idle(State):
     Animation = IdleAnimation
 
-    def __init__(self, player):
-        super().__init__(player)
-        self.player.vx = 0
-
     def use(self):
         self.player.state = Use(self.player)
 
     def left(self):
-        self.player.direction = -1
-        self.player.vx = -self.player.speed
-        self.player.state = Moving(self.player)
+        self.player.state = Walking(self.player, direction=-1, vx=-self.player.speed)
 
     def right(self):
-        self.player.direction = 1
-        self.player.vx = self.player.speed
-        self.player.state = Moving(self.player)
+        self.player.state = Walking(self.player, direction=1, vx=self.player.speed)
 
     def down(self):
         self.player.state = Ducking(self.player)
 
     def up(self):
-        self.player.state = Jumping(self.player)
+        self.player.state = Jumping(
+            self.player, vx=self.player.vx, vy=self.player.jump_speed
+        )
 
 
-class Moving(Idle):
+class Walking(Idle):
     Animation = WalkingAnimation
-
-    def __init__(self, player):
-        State.__init__(self, player)
 
     def left(self):
         pass
@@ -67,33 +67,29 @@ class Moving(Idle):
         pass
 
     def down(self):
-        self.player.state = Rolling(self.player)
+        self.player.state = Rolling(self.player, vx=self.player.vx)
 
 
 class Rolling(State):
     Animation = RollingAnimation
 
 
-class Ducking(Idle):
+class Ducking(State):
     Animation = DuckingAnimation
 
     def left(self):
-        self.player.direction = -1
-        self.player.vx = -self.player.speed
-        self.player.state = Rolling(self.player)
+        print("rolling left")
+        self.player.state = Rolling(self.player, vx=-self.player.speed)
+        print(self.player.state)
 
     def right(self):
-        self.player.direction = 1
-        self.player.vx = self.player.speed
-        self.player.state = Rolling(self.player)
+        print("rolling right")
+        self.player.state = Rolling(self.player, vx=self.player.speed)
+        print(self.player.state)
 
 
 class Jumping(State):
     Animation = JumpingAnimation
-
-    def __init__(self, player):
-        State.__init__(self, player)
-        self.player.vy = self.player.jump_speed
 
 
 class Use(State):
@@ -102,45 +98,3 @@ class Use(State):
 
 class Rebounding(State):
     Animation = ReboundAnimation
-
-
-if __name__ == "__main__":
-    import pygame
-
-    pygame.init()
-    clock = pygame.time.Clock()
-    screen = pygame.display.set_mode((400, 400))
-    pygame.display.set_caption("Arkie's Marshmallow Duel")
-
-    while True:
-
-        screen.fill((0, 255, 0))
-        pygame.display.flip()
-
-        for event in pygame.event.get():
-            # check if the event is the X button
-            if event.type == pygame.QUIT:
-                # if it is quit the game
-                pygame.quit()
-                exit(0)
-
-        pressed = pygame.key.get_pressed()
-
-        if pressed[pygame.K_e] or pressed[pygame.K_q]:
-            p.use()
-        if pressed[pygame.K_a]:
-            p.left()
-        if pressed[pygame.K_d]:
-            p.right()
-        if pressed[pygame.K_w]:
-            p.up()
-        if pressed[pygame.K_s]:
-            p.down()
-
-        if pressed[pygame.K_ESCAPE]:
-            pygame.quit()
-            exit(0)
-
-        p.tick()
-
-        clock.tick(60)

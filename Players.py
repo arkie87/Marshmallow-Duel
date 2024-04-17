@@ -20,23 +20,58 @@ class Player(pygame.sprite.Sprite):
         self.direction = direction
         self.controller = controller(self)
         self.color = color
-        self.state = Idle(self)
         self.x, self.y = x, y
+        self.state = Idle(self)
         self.vx = self.vy = 0.0
         self.speed = 5.0
-        self.jump_speed = 10.0
+        self.jump_speed = 15.0
+
+    @property
+    def direction(self):
+        return self._direction
+
+    @direction.setter
+    def direction(self, direction):
+        if direction:
+            self._direction = direction
+
+    def use(self):
+        self.state.use()
+
+    def left(self):
+        self.state.left()
+
+    def right(self):
+        self.state.right()
+
+    def down(self):
+        self.state.down()
+
+    def up(self):
+        self.state.up()
+
+    def tick(self):
+        self.state.tick()
+
+        actions = self.controller.get_actions()
+        for action in actions:
+            action()
+
+        self.move()
 
     def move(self):
+        self.image = self.state.animation.image
         self.rect = self.image.get_rect()
+
         self.x += self.vx
         if self.x < 0:
             self.x = 0
             self.vx = -self.vx
-            self.state = Rebounding(self)
+            self.state = Rebounding(self, vx=self.vx)
         elif self.x > self.game.SCREEN_WIDTH - self.rect.width:
             self.x = self.game.SCREEN_WIDTH - self.rect.width
             self.vx = -self.vx
-            self.state = Rebounding(self)
+            self.state = Rebounding(self, vx=self.vx)
 
         if self.is_supported():
             if self.vy <= 0:
@@ -65,15 +100,6 @@ class Player(pygame.sprite.Sprite):
             return True
         else:
             return False
-
-    def tick(self):
-        actions = self.controller.get_inputs()
-        for action in actions:
-            action()
-        self.state.tick()
-        self.image = self.state.animation.image
-        self.rect = self.image.get_rect()
-        self.move()
 
     def draw(self):
         self.game.screen.blit(self.image, self.rect)

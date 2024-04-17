@@ -5,23 +5,23 @@ class Controller:
     def __init__(self, player):
         self.player = player
 
-    def get_inputs(self):
-        inputs = []
+    def get_actions(self):
+        actions = []
         pressed = pygame.key.get_pressed()
         if pressed[self.use]:
-            inputs += [self.player.state.use]
+            actions += [self.player.use]
         if pressed[self.use2]:
-            inputs += [self.player.state.use]
+            actions += [self.player.use]
         if pressed[self.left]:
-            inputs += [self.player.state.left]
+            actions += [self.player.left]
         if pressed[self.right]:
-            inputs += [self.player.state.right]
+            actions += [self.player.right]
         if pressed[self.down]:
-            inputs += [self.player.state.down]
+            actions += [self.player.down]
         if pressed[self.up]:
-            inputs += [self.player.state.up]
+            actions += [self.player.up]
 
-        return inputs
+        return actions
 
 
 class FirstPlayerController(Controller):
@@ -44,15 +44,3 @@ class SecondPlayerController(Controller):
         self.up = pygame.K_i
         self.use = pygame.K_u
         self.use2 = pygame.K_o
-
-
-if __name__ == "__main__":
-    pygame.init()
-    c = FirstPlayerController()
-    clock = pygame.time.Clock()
-
-    while True:
-        pygame.display.set_mode((100, 100))
-        actions = c.get_inputs()
-        print(actions)
-        clock.tick(10)
