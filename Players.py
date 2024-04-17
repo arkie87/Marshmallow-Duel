@@ -67,11 +67,11 @@ class Player(pygame.sprite.Sprite):
         if self.x < 0:
             self.x = 0
             self.vx = -self.vx
-            self.state = Rebounding(self, vx=self.vx)
+            self.state.rebound()
         elif self.x > self.game.SCREEN_WIDTH - self.rect.width:
             self.x = self.game.SCREEN_WIDTH - self.rect.width
             self.vx = -self.vx
-            self.state = Rebounding(self, vx=self.vx)
+            self.state.rebound()
 
         if self.is_supported():
             if self.vy <= 0:
@@ -83,7 +83,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.is_supported():
             if isinstance(self.state, Jumping):
-                self.state = Ducking(self)
+                self.state.landed()
 
         self.rect.x, self.rect.y = self.x, self.game.SCREEN_HEIGHT - (
             self.y + self.rect.height

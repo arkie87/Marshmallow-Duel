@@ -20,6 +20,12 @@ class State:
     def end(self):
         self.player.state = Idle(self.player, self.player.direction)
 
+    def rebound(self):
+        self.player.state = Rebounding(self.player, vx=self.player.vx)
+
+    def landed(self):
+        self.player.state = Idle(self.player, self.player.direction)
+
     def use(self):
         pass
 
