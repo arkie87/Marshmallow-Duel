@@ -35,21 +35,6 @@ class Player(pygame.sprite.Sprite):
         if direction:
             self._direction = direction
 
-    def use(self):
-        self.state.use()
-
-    def left(self):
-        self.state.left()
-
-    def right(self):
-        self.state.right()
-
-    def down(self):
-        self.state.down()
-
-    def up(self):
-        self.state.up()
-
     def tick(self):
         self.state.tick()
 
@@ -57,19 +42,20 @@ class Player(pygame.sprite.Sprite):
         for action in actions:
             action()
 
+        self.image = self.state.animation.image
+        self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
+
         self.move()
 
     def move(self):
-        self.image = self.state.animation.image
-        self.rect = self.image.get_rect()
-
         self.x += self.vx
         if self.x < 0:
             self.x = 0
             self.vx = -self.vx
             self.state.rebound()
-        elif self.x > self.game.SCREEN_WIDTH - self.rect.width:
-            self.x = self.game.SCREEN_WIDTH - self.rect.width
+        elif self.x > SCREEN_WIDTH - self.rect.width:
+            self.x = SCREEN_WIDTH - self.rect.width
             self.vx = -self.vx
             self.state.rebound()
 
@@ -85,9 +71,7 @@ class Player(pygame.sprite.Sprite):
             if isinstance(self.state, Jumping):
                 self.state.landed()
 
-        self.rect.x, self.rect.y = self.x, self.game.SCREEN_HEIGHT - (
-            self.y + self.rect.height
-        )
+        self.rect.x, self.rect.y = self.x, SCREEN_HEIGHT - (self.y + self.rect.height)
 
     def is_near_rope(self):
         if self.x < 10:

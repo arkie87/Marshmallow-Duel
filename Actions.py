@@ -21,10 +21,12 @@ class State:
         self.player.state = Idle(self.player, self.player.direction)
 
     def rebound(self):
-        self.player.state = Rebounding(self.player, vx=self.player.vx)
+        self.player.state = Rebounding(
+            self.player, vx=self.player.vx, vy=self.player.jump_speed / 2
+        )
 
     def landed(self):
-        self.player.state = Idle(self.player, self.player.direction)
+        self.player.state = Landing(self.player, self.player.direction)
 
     def use(self):
         pass
@@ -85,13 +87,17 @@ class Ducking(State):
 
     def left(self):
         print("rolling left")
-        self.player.state = Rolling(self.player, vx=-self.player.speed)
+        self.player.state = Rolling(self.player, vx=-self.player.speed, direction=-1)
         print(self.player.state)
 
     def right(self):
         print("rolling right")
-        self.player.state = Rolling(self.player, vx=self.player.speed)
+        self.player.state = Rolling(self.player, vx=self.player.speed, direction=1)
         print(self.player.state)
+
+
+class Landing(State):
+    Animation = LandingAnimation
 
 
 class Jumping(State):

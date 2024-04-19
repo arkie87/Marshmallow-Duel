@@ -9,19 +9,34 @@ class Controller:
         actions = []
         pressed = pygame.key.get_pressed()
         if pressed[self.use]:
-            actions += [self.player.use]
+            actions += [self.call_use]
         if pressed[self.use2]:
-            actions += [self.player.use]
+            actions += [self.call_use]
         if pressed[self.left]:
-            actions += [self.player.left]
+            actions += [self.call_left]
         if pressed[self.right]:
-            actions += [self.player.right]
+            actions += [self.call_right]
         if pressed[self.down]:
-            actions += [self.player.down]
+            actions += [self.call_down]
         if pressed[self.up]:
-            actions += [self.player.up]
+            actions += [self.call_up]
 
         return actions
+
+    def call_use(self):
+        self.player.state.use()
+
+    def call_left(self):
+        self.player.state.left()
+
+    def call_right(self):
+        self.player.state.right()
+
+    def call_down(self):
+        self.player.state.down()
+
+    def call_up(self):
+        self.player.state.up()
 
 
 class FirstPlayerController(Controller):
